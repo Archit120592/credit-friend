@@ -52,8 +52,13 @@ check_requirements() {
 # Deploy Backend to Heroku
 deploy_backend() {
     print_status "Deploying backend to Heroku..."
+
+    if [ ! -d backend ] || [ ! -f backend/package.json ]; then
+        print_warning "backend/ directory or package.json not found. Skipping backend deployment."
+        return 1
+    fi
     
-    cd backend
+    cd backend || { print_error "Failed to enter backend directory"; return 1; }
     
     # Check if Heroku CLI is installed
     if ! command -v heroku &> /dev/null; then
@@ -67,6 +72,7 @@ deploy_backend() {
         echo "   heroku config:set JWT_SECRET=your-jwt-secret"
         echo "   heroku config:set OPENAI_API_KEY=your-openai-key"
         echo "3. Deploy: git push heroku main"
+        cd ..
         return 1
     fi
     
@@ -97,8 +103,13 @@ deploy_backend() {
 # Deploy Frontend to Netlify
 deploy_frontend() {
     print_status "Deploying frontend to Netlify..."
+
+    if [ ! -d frontend ] || [ ! -f frontend/package.json ]; then
+        print_warning "frontend/ directory or package.json not found. Skipping frontend deployment."
+        return 1
+    fi
     
-    cd frontend
+    cd frontend || { print_error "Failed to enter frontend directory"; return 1; }
     
     # Build the project
     print_status "Building frontend..."
@@ -113,6 +124,7 @@ deploy_frontend() {
         echo "1. Go to https://app.netlify.com"
         echo "2. Drag and drop the 'build' folder"
         echo "3. Set environment variable REACT_APP_API_URL to your backend URL"
+        cd ..
         return 1
     fi
     
